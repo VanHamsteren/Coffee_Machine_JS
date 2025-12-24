@@ -1,12 +1,38 @@
-// Use "input()" to input a line from the user
-// Use "input(str)" to print some text before requesting input
-// You will need this in the following stages
-const input = require('sync-input')
+const input = require('sync-input');
 
-console.log(`Starting to make a coffee
-Grinding coffee beans
-Boiling water
-Mixing boiled water with crushed coffee beans
-Pouring coffee into the cup
-Pouring some milk into the cup
-Coffee is ready!`)
+// INGREDIENT
+class Ingredient {
+  constructor (name, amount, unit) {
+    this.name = name;
+    this.amount = amount;
+    this.unit = unit;
+  }
+}
+
+// INGREDIENTS {name: "coffee beans", amount: 15, unit: "g"}
+const iWater = new Ingredient("water", 200, "ml");
+const iMilk = new Ingredient("milk", 50, "ml");
+const iBeans = new Ingredient("coffee beans", 15, "g");
+
+// FEEDBACK
+const qAmount = "Write how many cups of coffee you will need:"
+
+// FUNCTIONS
+function calcIngredients(amount) {
+  const aWater = amount * iWater.amount;
+  const aMilk = amount * iMilk.amount;
+  const aBeans = amount * iBeans.amount;
+  
+  return console.log(`For ${amount} cups of coffee you will need:
+  ${aWater} ${iWater.unit} of ${iWater.name}
+  ${aMilk} ${iMilk.unit} of ${iMilk.name}
+  ${aBeans} ${iBeans.unit} of ${iBeans.name}`);
+}
+
+function main() {
+  const amount = input(qAmount);
+  return amount;
+}
+
+// MAIN
+calcIngredients(main());
