@@ -1,38 +1,59 @@
 const input = require('sync-input');
 
-// INGREDIENT
-class Ingredient {
-  constructor (name, amount, unit) {
-    this.name = name;
-    this.amount = amount;
-    this.unit = unit;
-  }
+// RECIPE PER CUP OF COFFEE
+const RECIPE = {
+    water: 200,
+    milk: 50,
+    beans: 15
 }
 
-// INGREDIENTS {name: "coffee beans", amount: 15, unit: "g"}
-const iWater = new Ingredient("water", 200, "ml");
-const iMilk = new Ingredient("milk", 50, "ml");
-const iBeans = new Ingredient("coffee beans", 15, "g");
-
-// FEEDBACK
-const qAmount = "Write how many cups of coffee you will need:"
+// MESSAGES
+const PROMPTS = [
+    "Write how many ml of water the coffee machine has:\n",
+    "Write how many ml of milk the coffee machine has:\n",
+    "Write how many grams of coffee beans the coffee machine has:\n",
+    "Write how many cups of coffee you will need:\n"
+];
 
 // FUNCTIONS
-function calcIngredients(amount) {
-  const aWater = amount * iWater.amount;
-  const aMilk = amount * iMilk.amount;
-  const aBeans = amount * iBeans.amount;
-  
-  return console.log(`For ${amount} cups of coffee you will need:
-  ${aWater} ${iWater.unit} of ${iWater.name}
-  ${aMilk} ${iMilk.unit} of ${iMilk.name}
-  ${aBeans} ${iBeans.unit} of ${iBeans.name}`);
+// -- INPUT SANITIZE (only numbers allowed here)
+function parseInt(str) {
+    const num = +str.trim();
+    return isNaN(num) ? 0 : Math.floor(num);
 }
 
-function main() {
-  const amount = input(qAmount);
-  return amount;
+// -- BREWING
+function canBrew(machine, cups){
+    // CALCULATE REQUIREMENTS
+    const requirements = {
+        water: RECIPE.water * cups,
+        milk: RECIPE.milk * cups,
+        beans: RECIPE.beans * cups,
+    };
+
+    // CALCULATE CAPACITY
+    const maxCups = Math.min(
+        Math.floor(machine.water / RECIPE.water),
+        Math.floor(machine.milk / RECIPE.milk),
+        Math.floor(machine.beans / RECIPE.beans)
+    );
+
+    // FEEDBACK
+    // - TOO MUCH
+    if (cups > maxCups) {
+        return `No, I can make only ${maxCups} cup(s) of coffee`;
+    }
+    // - ENOUGH + LEFTOVER
+    if (cups < maxCups) {
+        return `Yes, I can make that amount of coffee (and even ${maxCups - cups} more than that)`;
+    }
+    // - EXACTLY ENOUGH
+    return "Yes, I can make that amount of coffee"
 }
 
-// MAIN
-calcIngredients(main());
+// START COFFEE MACHINE
+const [water, milk, beans, cups] = PROMPTS.map(prompt => parseInt(input(prompt)));
+const machine = { water, milk, beans }; // Fill the machine with ingredients
+
+// BREW
+console.log(canBrew(machine, cups));
