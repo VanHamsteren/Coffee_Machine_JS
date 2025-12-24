@@ -28,6 +28,7 @@ const input = require('sync-input');
 // const cappuccino = new Recipe(200, 100, 12, 1, 6);
 
 // INITIALIZE COFFEE MACHINE
+let running = false;
 let machine = { water: 400, milk: 540, beans: 120, cups: 9, money: 550 };
 
 // RECIPES
@@ -48,9 +49,10 @@ const qWater = `Write how many ${INGREDIENTS.water.unit} of ${INGREDIENTS.water.
 const qMilk = `Write how many ${INGREDIENTS.milk.unit} of ${INGREDIENTS.milk.name} you want to add:\n`;
 const qBeans = `Write how many ${INGREDIENTS.beans.unit_long} of ${INGREDIENTS.beans.name} you want to add:\n`;
 const qCups = "Write how many disposable cups you want to add:\n";
-const qAction = "Write action (buy, fill, take):\n";
-const qBuy = `What do you want to buy? 1 - ${RECIPES[1].name}, 2 - ${RECIPES[2].name}, 3 - ${RECIPES[3].name}:\n`;
+const qAction = "Write action (buy, fill, take, remaining, exit):\n";
+const qBuy = `What do you want to buy? 1 - ${RECIPES[1].name}, 2 - ${RECIPES[2].name}, 3 - ${RECIPES[3].name}, back - to main menu:\n`;
 const qMoney = `I gave you $${machine.money}`;
+const qBrew = "I have enough resources, making you a "
 
 // FUNCTIONS
 function parseIntInput(prompt) {
@@ -62,10 +64,23 @@ function displayMessage(message) {
 }
 
 function canMake(recipe) {
-    return machine.water >= recipe.water &&
-        machine.milk >= recipe.milk &&
-        machine.beans >= recipe.beans &&
-        machine.cups >= recipe.cups;
+    if (machine.water < recipe.water) {
+        displayMessage(`Sorry, not enough ${INGREDIENTS.water.name}!`)
+        return false;
+    }
+    if (machine.milk < recipe.milk) {
+        displayMessage(`Sorry, not enough ${INGREDIENTS.milk.name}!`)
+        return false;
+    }
+    if (machine.beans < recipe.beans) {
+        displayMessage(`Sorry, not enough ${INGREDIENTS.beans.name}!`)
+        return false;
+    }
+    if (machine.cups < recipe.cups) {
+        displayMessage(`Sorry, not enough ${INGREDIENTS.cups.name}!`)
+        return false;
+    }
+    return true;
 }
 
 function brew(recipe) {
@@ -77,14 +92,23 @@ function brew(recipe) {
 }
 
 function buy() {
-    const choice = parseIntInput(qBuy);
+    const choice = input(qBuy).trim().toLowerCase();
     const recipe = RECIPES[choice];
 
-    if (!recipe) return console.log("Wrong input..");
-    if (!canMake(recipe)) return console.log("Not enough resources..");
+    if (choice === "back") {
+        return false;
+    }
+    if (!recipe) {
+        displayMessage("Wrong input..");
+        return false;
+    }
 
-    brew(recipe);
-    displayMessage("\n" + showState());
+    if (canMake(recipe)) {
+        displayMessage(qBrew + `${recipe.name}!`);
+        brew(recipe);
+        return true;
+    }
+    return false;
 }
 
 function fill() {
@@ -92,16 +116,14 @@ function fill() {
     machine.milk += parseIntInput(qMilk);
     machine.beans += parseIntInput(qBeans);
     machine.cups += parseIntInput(qCups);
-    displayMessage("\n" + showState());
 }
 
 function take() {
     machine.money = 0;
     displayMessage(qMoney);
-    displayMessage("\n" + showState());
 }
 
-function showState() {
+function remaining() {
     return `The coffee machine has:
 ${machine.water} ml of ${INGREDIENTS.water.name}
 ${machine.milk} ml of ${INGREDIENTS.milk.name}
@@ -111,25 +133,32 @@ $${machine.money} of money`;
 }
 
 function machineMenu() {
-    displayMessage(showState());
-    const choice = input(qAction).trim();
-
-    switch (choice) {
-        case "buy" :
-            buy();
-            return;
-        case "fill" :
-            fill();
-            return;
-        case "take" :
-            take();
-            return;
-        default:
-            displayMessage("Wrong input..")
+    while (running) {
+        const choice = input("\n" + qAction).trim().toLowerCase();
+        switch (choice) {
+            case "buy" :
+                buy();
+                break;
+            case "fill" :
+                fill();
+                break;
+            case "take" :
+                take();
+                break;
+            case "remaining" :
+                displayMessage("\n" + remaining());
+                break;
+            case "exit" :
+                running = false;
+                return;
+            default:
+                displayMessage("Wrong input..")
+        }
     }
 }
 
 function main () {
+    running = true;
     machineMenu();
 }
 
