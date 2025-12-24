@@ -2,8 +2,6 @@
 
 A fully-featured Node.js terminal coffee machine simulator built as a Hyperskill-inspired project. Extended with soup, chocolate, cleaning mechanics, and inventory tracking.
 
-[![coffee-machine-demo](https://via.placeholder.com/800x400/1a1a1a/ffffff?text=Coffee+Machinehttps://github.com/yourusername/coffee-machine
-
 - **6 Drink Types**: Espresso ☕, Latte 🥛, Cappuccino ☕🥛, Instant Soup 🍜, Warm Chocolate 🍫, Warm Water 💧
 - **Resource Management**: Water, milk, coffee beans, soup powder, chocolate powder, disposable cups
 - **Realistic Mechanics**:
